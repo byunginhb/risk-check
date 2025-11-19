@@ -22,7 +22,7 @@ export function Header() {
                 {t('title')}
               </span>
             </Link>
-            
+
             <nav className="hidden md:flex items-center gap-6">
               <Link
                 href={`/${locale}`}
@@ -33,7 +33,7 @@ export function Header() {
               </Link>
             </nav>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="hidden sm:block w-px h-6 bg-border/50" />
             <div className="flex items-center gap-2">

@@ -56,6 +56,21 @@
   },
   "analysis": {
     "title": "Analysis Results",
+    "analysisId": "Analysis ID",
+    "originalContract": "Original Contract",
+    "clickToView": "Click card to view location in document",
+    "viewFullDetails": "View Full Details",
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "cardHelp": {
+      "summary": "This area shows the contract summary.",
+      "issues": "This area shows detected issues.",
+      "policy": "This area shows policy relevance.",
+      "dates": "This area shows important dates."
+    },
     "summary": {
       "title": "Contract Summary",
       "description": "Summary of the main contents of the contract."
@@ -66,20 +81,26 @@
     },
     "policy": {
       "title": "Policy Relevance",
-      "description": "Analysis of relevance to current real estate policies."
+      "description": "Analysis of relevance to current real estate policies.",
+      "count": "{count} relevant policies identified."
     },
     "dates": {
       "title": "Important Dates",
-      "description": "Important dates specified in the contract.",
+      "description": "Check important dates such as expiration and renewal dates.",
+      "startDate": "Contract Start Date",
       "expiry": "Expiration Date",
       "renewal": "Renewal Date",
-      "moving": "Moving Preparation Date"
+      "moving": "Moving Preparation Date",
+      "noticePeriod": "Prior Notice Period"
     },
-    "noResults": "No analysis results available"
+    "noResults": "No analysis results available",
+    "address": "Address",
+    "recommendation": "Recommendation",
+    "impact": "Impact"
   },
   "detail": {
     "title": "Detailed Analysis Results",
-    "allResults": "All Analysis Results"
+    "allResults": "All Analysis Results",
+    "back": "Back"
   }
 }
-

@@ -24,8 +24,8 @@ export default function AnalysisPage({
 }: {
   params: Promise<{ locale: string; id: string }>;
 }) {
-  const [locale, setLocale] = useState<string>('ko');
   const [id, setId] = useState<string>('');
+  const [locale, setLocale] = useState<string>('ko');
   const [analysis, setAnalysis] = useState<ContractAnalysis | null>(null);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [highlightAreas, setHighlightAreas] = useState<HighlightArea[]>([]);
@@ -34,9 +34,9 @@ export default function AnalysisPage({
 
   useEffect(() => {
     params.then((p) => {
-      setLocale(p.locale);
       setId(p.id);
-      getAnalysis(p.id).then((data) => {
+      setLocale(p.locale);
+      getAnalysis(p.id, p.locale).then((data) => {
         setAnalysis(data);
       });
     });
@@ -53,11 +53,11 @@ export default function AnalysisPage({
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
       case 'high':
-        return { text: '높음', color: 'red' as const };
+        return { text: t('severity.high'), color: 'red' as const };
       case 'medium':
-        return { text: '보통', color: 'yellow' as const };
+        return { text: t('severity.medium'), color: 'yellow' as const };
       case 'low':
-        return { text: '낮음', color: 'green' as const };
+        return { text: t('severity.low'), color: 'green' as const };
       default:
         return { text: '', color: 'blue' as const };
     }
@@ -71,22 +71,22 @@ export default function AnalysisPage({
     
     switch (cardType) {
       case 'summary':
-        areas.push({ x: 10, y: 10, width: 80, height: 30, type: 'summary' });
+        areas.push({ x: 5, y: 5, width: 90, height: 30, type: 'summary' });
         break;
       case 'issues':
         if (issueId === 'issue-001') {
-          areas.push({ x: 15, y: 45, width: 70, height: 15, type: 'issue', id: issueId });
+          areas.push({ x: 5, y: 45, width: 90, height: 15, type: 'issue', id: issueId });
         } else if (issueId === 'issue-002') {
-          areas.push({ x: 15, y: 60, width: 70, height: 15, type: 'issue', id: issueId });
+          areas.push({ x: 5, y: 60, width: 90, height: 12, type: 'issue', id: issueId });
         } else {
-          areas.push({ x: 15, y: 75, width: 70, height: 15, type: 'issue', id: issueId });
+          areas.push({ x: 5, y: 75, width: 90, height: 20, type: 'issue', id: issueId });
         }
         break;
       case 'policy':
-        areas.push({ x: 10, y: 50, width: 80, height: 20, type: 'policy' });
+        areas.push({ x: 5, y: 50, width: 90, height: 20, type: 'policy' });
         break;
       case 'dates':
-        areas.push({ x: 20, y: 25, width: 60, height: 25, type: 'date' });
+        areas.push({ x: 5, y: 25, width: 90, height: 10, type: 'date' });
         break;
     }
     
@@ -101,15 +101,15 @@ export default function AnalysisPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 animate-fade-in-up">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t('title')}</h1>
-          <p className="text-muted-foreground">분석 ID: {id}</p>
+          <p className="text-muted-foreground">{t('analysisId')}: {id}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 좌측: 문서 원본 */}
           <div className="glass-card rounded-xl p-6 sticky top-24 h-fit animate-fade-in-up animation-delay-200">
-            <h2 className="text-xl font-semibold text-foreground mb-4">계약서 원본</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">{t('originalContract')}</h2>
             <div className="relative border border-border rounded-lg overflow-hidden bg-muted/50">
-              <div className="relative aspect-[3/4] w-full">
+              <div className="relative aspect-3/4 w-full">
                 <Image
                   src="/sample.png"
                   alt="계약서 원본"
@@ -141,10 +141,10 @@ export default function AnalysisPage({
             {selectedCard && (
               <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg animate-fade-in-up">
                 <p className="text-sm text-primary">
-                  {selectedCard === 'summary' && '계약서 요약 정보가 표시된 영역입니다.'}
-                  {selectedCard === 'issues' && '발견된 문제점이 표시된 영역입니다.'}
-                  {selectedCard === 'policy' && '정책 연관 정보가 표시된 영역입니다.'}
-                  {selectedCard === 'dates' && '중요 날짜 정보가 표시된 영역입니다.'}
+                  {selectedCard === 'summary' && t('cardHelp.summary')}
+                  {selectedCard === 'issues' && t('cardHelp.issues')}
+                  {selectedCard === 'policy' && t('cardHelp.policy')}
+                  {selectedCard === 'dates' && t('cardHelp.dates')}
                 </p>
               </div>
             )}
@@ -168,7 +168,7 @@ export default function AnalysisPage({
               <h3 className="text-xl font-semibold text-foreground mb-2">{t('summary.title')}</h3>
               <p className="text-muted-foreground mb-4 line-clamp-3">{analysis.summary}</p>
               <div className="text-sm text-primary font-medium flex items-center">
-                카드를 클릭하여 문서에서 위치 확인
+                {t('clickToView')}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </div>
             </div>
@@ -234,10 +234,10 @@ export default function AnalysisPage({
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">{t('policy.title')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  {analysis.policyRelevance.policies.length}개의 관련 정책이 확인되었습니다.
+                  {t('policy.count', { count: analysis.policyRelevance.policies.length })}
                 </p>
                 <div className="text-sm text-purple-500 font-medium flex items-center">
-                  카드를 클릭하여 문서에서 위치 확인
+                  {t('clickToView')}
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </div>
               </div>
@@ -257,9 +257,9 @@ export default function AnalysisPage({
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">{t('dates.title')}</h3>
-              <p className="text-muted-foreground mb-4">만기일, 재계약일 등 중요 날짜를 확인하세요.</p>
+              <p className="text-muted-foreground mb-4">{t('dates.description')}</p>
               <div className="text-sm text-emerald-500 font-medium flex items-center">
-                카드를 클릭하여 문서에서 위치 확인
+                {t('clickToView')}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </div>
             </div>
@@ -272,7 +272,7 @@ export default function AnalysisPage({
                 size="lg"
                 className="w-full h-14 text-lg shadow-lg shadow-primary/20"
               >
-                전체 상세보기
+                {t('viewFullDetails')}
               </Button>
             </div>
           </div>

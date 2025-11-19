@@ -3,23 +3,21 @@ import Link from 'next/link';
 import { Button } from '@/src/shared/ui/button';
 import { HomeHero } from '@/src/widgets/home-hero/HomeHero';
 import { FileText, AlertTriangle, ShieldCheck, Calendar } from 'lucide-react';
+import { AIBackground } from '@/src/shared/ui/background/AIBackground';
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations('home');
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen text-foreground">
       {/* Hero Section with Animation */}
       <HomeHero>
+        <AIBackground />
         <section className="relative overflow-hidden pt-32 pb-20">
           <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] dark:opacity-[0.05]"></div>
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-background via-transparent to-background z-0"></div>
-          
+          <div className="absolute top-0 left-0 w-full h-full bg-linear-to-b from-background via-transparent to-background z-0"></div>
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
               <div className="inline-block mb-6 animate-bounce-slow">
@@ -28,7 +26,7 @@ export default async function HomePage({
                 </span>
               </div>
               <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-6">
-                <span className="bg-gradient-to-b from-foreground to-muted-foreground bg-clip-text text-transparent">
+                <span className="bg-linear-to-b from-foreground to-muted-foreground bg-clip-text text-transparent">
                   {t('title')}
                 </span>
               </h1>
@@ -40,7 +38,11 @@ export default async function HomePage({
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link href={`/${locale}/upload`}>
-                  <Button size="lg" variant="primary" className="text-lg h-14 px-8 shadow-lg shadow-primary/20">
+                  <Button
+                    size="lg"
+                    variant="primary"
+                    className="text-lg h-14 px-8 shadow-lg shadow-primary/20"
+                  >
                     {t('getStarted')}
                   </Button>
                 </Link>
@@ -54,23 +56,29 @@ export default async function HomePage({
                   <div className="text-5xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent mb-3">
                     1,234+
                   </div>
-                  <div className="text-muted-foreground font-medium text-lg">{t('stats.analyzed')}</div>
+                  <div className="text-muted-foreground font-medium text-lg">
+                    {t('stats.analyzed')}
+                  </div>
                 </div>
               </div>
               <div className="animate-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-200 ease-out">
                 <div className="glass-card rounded-2xl p-8 text-center hover:scale-105 transition-transform duration-300">
-                  <div className="text-5xl font-bold bg-gradient-to-r from-red-500 to-rose-600 bg-clip-text text-transparent mb-3">
+                  <div className="text-5xl font-bold bg-linear-to-r from-red-500 to-rose-600 bg-clip-text text-transparent mb-3">
                     892
                   </div>
-                  <div className="text-muted-foreground font-medium text-lg">{t('stats.issues')}</div>
+                  <div className="text-muted-foreground font-medium text-lg">
+                    {t('stats.issues')}
+                  </div>
                 </div>
               </div>
               <div className="animate-on-scroll opacity-0 translate-y-8 transition-all duration-700 delay-300 ease-out">
                 <div className="glass-card rounded-2xl p-8 text-center hover:scale-105 transition-transform duration-300">
-                  <div className="text-5xl font-bold bg-gradient-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent mb-3">
+                  <div className="text-5xl font-bold bg-linear-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent mb-3">
                     ₩2.1B+
                   </div>
-                  <div className="text-muted-foreground font-medium text-lg">{t('stats.saved')}</div>
+                  <div className="text-muted-foreground font-medium text-lg">
+                    {t('stats.saved')}
+                  </div>
                 </div>
               </div>
             </div>
@@ -79,7 +87,7 @@ export default async function HomePage({
 
         {/* Features Section */}
         <section className="py-20 relative">
-           <div className="absolute inset-0 bg-secondary/30 -z-10"></div>
+          <div className="absolute inset-0 bg-secondary/30 -z-10"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
@@ -170,7 +178,9 @@ export default async function HomePage({
           <div className="absolute inset-0 bg-primary/5 -z-10"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="animate-on-scroll opacity-0 translate-y-8 transition-all duration-700 ease-out">
-              <h3 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">{t('trustedBy')}</h3>
+              <h3 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+                {t('trustedBy')}
+              </h3>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                 {t('trustDescription')}
               </p>

@@ -56,6 +56,21 @@
   },
   "analysis": {
     "title": "분석 결과",
+    "analysisId": "분석 ID",
+    "originalContract": "계약서 원본",
+    "clickToView": "카드를 클릭하여 문서에서 위치 확인",
+    "viewFullDetails": "전체 상세보기",
+    "severity": {
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "cardHelp": {
+      "summary": "계약서 요약 정보가 표시된 영역입니다.",
+      "issues": "발견된 문제점이 표시된 영역입니다.",
+      "policy": "정책 연관 정보가 표시된 영역입니다.",
+      "dates": "중요 날짜 정보가 표시된 영역입니다."
+    },
     "summary": {
       "title": "계약서 요약",
       "description": "계약서의 주요 내용을 요약합니다."
@@ -66,20 +81,26 @@
     },
     "policy": {
       "title": "정책 연관성",
-      "description": "현재 부동산 정책과의 연관성을 분석합니다."
+      "description": "현재 부동산 정책과의 연관성을 분석합니다.",
+      "count": "{count}개의 관련 정책이 확인되었습니다."
     },
     "dates": {
       "title": "중요 날짜",
-      "description": "계약서에 명시된 중요 날짜입니다.",
+      "description": "만기일, 재계약일 등 중요 날짜를 확인하세요.",
+      "startDate": "계약 시작일",
       "expiry": "만기일",
       "renewal": "재계약 가능일",
-      "moving": "이사 준비일"
+      "moving": "이사 준비일",
+      "noticePeriod": "사전 통지 기간"
     },
-    "noResults": "분석 결과가 없습니다"
+    "noResults": "분석 결과가 없습니다",
+    "address": "주소",
+    "recommendation": "권장사항",
+    "impact": "영향"
   },
   "detail": {
     "title": "상세 분석 결과",
-    "allResults": "전체 분석 결과"
+    "allResults": "전체 분석 결과",
+    "back": "뒤로가기"
   }
 }
-

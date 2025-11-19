@@ -14,7 +14,7 @@ export default async function AnalysisDetailPage({
   const { locale, id } = await params;
   const t = await getTranslations('detail');
   const analysisT = await getTranslations('analysis');
-  const analysis = await getAnalysis(id);
+  const analysis = await getAnalysis(id, locale);
 
   if (!analysis) {
     notFound();
@@ -22,7 +22,7 @@ export default async function AnalysisDetailPage({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('ko-KR', {
+    return new Date(dateString).toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -42,13 +42,26 @@ export default async function AnalysisDetailPage({
     }
   };
 
+  const getSeverityText = (severity: string) => {
+    switch (severity) {
+      case 'high':
+        return analysisT('severity.high');
+      case 'medium':
+        return analysisT('severity.medium');
+      case 'low':
+        return analysisT('severity.low');
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8 animate-fade-in-up">
         <Link href={`/${locale}/analysis/${id}`}>
           <Button variant="ghost" size="sm" className="mb-4 pl-0 hover:pl-2 transition-all">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            뒤로가기
+            {t('back')}
           </Button>
         </Link>
         <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
@@ -68,7 +81,7 @@ export default async function AnalysisDetailPage({
           {analysis.propertyAddress && (
             <div className="mt-6 pt-6 border-t border-border">
               <p className="text-sm text-muted-foreground">
-                <strong className="text-foreground mr-2">주소:</strong> {analysis.propertyAddress}
+                <strong className="text-foreground mr-2">{analysisT('address')}:</strong> {analysis.propertyAddress}
               </p>
             </div>
           )}
@@ -95,13 +108,13 @@ export default async function AnalysisDetailPage({
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="font-semibold text-lg">{issue.title}</h3>
                     <span className="text-xs font-medium px-2.5 py-1 rounded-full border border-current opacity-80">
-                      {issue.severity === 'high' ? '높음' : issue.severity === 'medium' ? '보통' : '낮음'}
+                      {getSeverityText(issue.severity)}
                     </span>
                   </div>
                   <p className="text-sm mb-4 opacity-90">{issue.description}</p>
                   {issue.recommendation && (
                     <div className="mt-4 pt-4 border-t border-current border-opacity-20">
-                      <p className="text-sm font-medium mb-1 opacity-80">권장사항:</p>
+                      <p className="text-sm font-medium mb-1 opacity-80">{analysisT('recommendation')}:</p>
                       <p className="text-sm opacity-90">{issue.recommendation}</p>
                     </div>
                   )}
@@ -126,7 +139,7 @@ export default async function AnalysisDetailPage({
                   <h3 className="font-semibold text-lg text-purple-400 mb-2">{policy.title}</h3>
                   <p className="text-sm text-muted-foreground mb-4">{policy.description}</p>
                   <div className="mt-2 pt-4 border-t border-purple-500/10">
-                    <p className="text-sm font-medium text-purple-400 mb-1">영향:</p>
+                    <p className="text-sm font-medium text-purple-400 mb-1">{analysisT('impact')}:</p>
                     <p className="text-sm text-muted-foreground">{policy.impact}</p>
                   </div>
                 </div>
@@ -146,7 +159,7 @@ export default async function AnalysisDetailPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {analysis.importantDates.contractStartDate && (
               <div className="p-6 bg-secondary/50 rounded-xl border border-border">
-                <p className="text-sm text-muted-foreground mb-2">계약 시작일</p>
+                <p className="text-sm text-muted-foreground mb-2">{analysisT('dates.startDate')}</p>
                 <p className="text-xl font-semibold text-foreground">
                   {formatDate(analysis.importantDates.contractStartDate)}
                 </p>
@@ -178,9 +191,9 @@ export default async function AnalysisDetailPage({
             )}
             {analysis.importantDates.noticePeriod && (
               <div className="p-6 bg-amber-500/5 rounded-xl border border-amber-500/10">
-                <p className="text-sm text-amber-400 mb-2">사전 통지 기간</p>
+                <p className="text-sm text-amber-400 mb-2">{analysisT('dates.noticePeriod')}</p>
                 <p className="text-xl font-semibold text-amber-500">
-                  {analysis.importantDates.noticePeriod}일
+                  {analysis.importantDates.noticePeriod}{locale === 'ko' ? '일' : ' days'}
                 </p>
               </div>
             )}
