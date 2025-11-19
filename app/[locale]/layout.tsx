@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { routing } from '@/src/shared/config/i18n';
 import { Header } from '@/src/widgets/header';
 import { ThemeProvider } from '@/src/shared/providers/ThemeProvider';
+import { AIBackground } from '@/src/shared/ui/background/AIBackground';
 import type { Metadata } from 'next';
 import '../globals.css';
 
@@ -59,15 +60,16 @@ export default async function LocaleLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          enableSystem={false}
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
             <div className="relative flex min-h-screen flex-col">
               <Header />
               <main className="flex-1 relative z-10">{children}</main>
-              {/* Background Pattern */}
-              <div className="fixed inset-0 -z-10 h-full w-full bg-background bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
+              <AIBackground />
+              {/* Background Pattern Overlay */}
+              <div className="fixed inset-0 -z-20 h-full w-full bg-background/90 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
             </div>
           </NextIntlClientProvider>
         </ThemeProvider>

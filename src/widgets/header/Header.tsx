@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 import { LanguageSwitcher } from '@/src/shared/ui/language-switcher/LanguageSwitcher';
-import { ThemeToggle } from '@/src/shared/ui/theme-toggle/ThemeToggle';
-import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
 
 export function Header() {
@@ -39,7 +37,6 @@ export function Header() {
           <div className="flex items-center gap-4">
             <div className="hidden sm:block w-px h-6 bg-border/50" />
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <LanguageSwitcher />
             </div>
           </div>

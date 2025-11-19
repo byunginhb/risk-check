@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getAnalysis } from '@/src/shared/api/mock/contract';
 import { ContractAnalysis } from '@/src/shared/types/contract';
 import { Button } from '@/src/shared/ui/button';
+import { Loader2, FileText, AlertTriangle, ShieldCheck, Calendar, ArrowRight } from 'lucide-react';
+import { cn } from '@/src/shared/lib/utils';
 
 interface HighlightArea {
   x: number;
@@ -43,7 +45,7 @@ export default function AnalysisPage({
   if (!analysis) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
       </div>
     );
   }
@@ -95,39 +97,37 @@ export default function AnalysisPage({
   const hasPolicyRelevance = analysis.policyRelevance.relevant;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
-          <p className="text-gray-600">분석 ID: {id}</p>
+        <div className="mb-8 animate-fade-in-up">
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t('title')}</h1>
+          <p className="text-muted-foreground">분석 ID: {id}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* 좌측: 문서 원본 */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">계약서 원본</h2>
-            <div className="relative border border-gray-300 rounded-lg overflow-hidden bg-gray-100">
+          <div className="glass-card rounded-xl p-6 sticky top-24 h-fit animate-fade-in-up animation-delay-200">
+            <h2 className="text-xl font-semibold text-foreground mb-4">계약서 원본</h2>
+            <div className="relative border border-border rounded-lg overflow-hidden bg-muted/50">
               <div className="relative aspect-[3/4] w-full">
                 <Image
                   src="/sample.png"
                   alt="계약서 원본"
                   fill
-                  className="object-contain"
+                  className="object-contain opacity-90"
                   priority
                 />
                 {/* 하이라이트 오버레이 */}
                 {highlightAreas.map((area, index) => (
                   <div
                     key={index}
-                    className={`absolute border-2 rounded ${
-                      area.type === 'issue'
-                        ? 'border-red-500 bg-red-500 bg-opacity-20'
-                        : area.type === 'policy'
-                        ? 'border-purple-500 bg-purple-500 bg-opacity-20'
-                        : area.type === 'date'
-                        ? 'border-green-500 bg-green-500 bg-opacity-20'
-                        : 'border-blue-500 bg-blue-500 bg-opacity-20'
-                    }`}
+                    className={cn(
+                      "absolute border-2 rounded transition-all duration-300",
+                      area.type === 'issue' && "border-red-500 bg-red-500/20",
+                      area.type === 'policy' && "border-purple-500 bg-purple-500/20",
+                      area.type === 'date' && "border-emerald-500 bg-emerald-500/20",
+                      area.type === 'summary' && "border-blue-500 bg-blue-500/20"
+                    )}
                     style={{
                       left: `${area.x}%`,
                       top: `${area.y}%`,
@@ -139,8 +139,8 @@ export default function AnalysisPage({
               </div>
             </div>
             {selectedCard && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
+              <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg animate-fade-in-up">
+                <p className="text-sm text-primary">
                   {selectedCard === 'summary' && '계약서 요약 정보가 표시된 영역입니다.'}
                   {selectedCard === 'issues' && '발견된 문제점이 표시된 영역입니다.'}
                   {selectedCard === 'policy' && '정책 연관 정보가 표시된 영역입니다.'}
@@ -151,60 +151,67 @@ export default function AnalysisPage({
           </div>
 
           {/* 우측: 분석 결과 카드 */}
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in-up animation-delay-400">
             {/* 계약서 요약 카드 */}
             <div
               onClick={() => handleCardClick('summary')}
-              className={`bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
-                selectedCard === 'summary'
-                  ? 'border-blue-500 shadow-lg'
-                  : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
-              }`}
+              className={cn(
+                "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
+                selectedCard === 'summary' ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/50"
+              )}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="text-3xl">📄</div>
+                <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                  <FileText className="w-6 h-6" />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('summary.title')}</h3>
-              <p className="text-gray-600 mb-4 line-clamp-3">{analysis.summary}</p>
-              <div className="text-sm text-blue-600 font-medium">카드를 클릭하여 문서에서 위치 확인</div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{t('summary.title')}</h3>
+              <p className="text-muted-foreground mb-4 line-clamp-3">{analysis.summary}</p>
+              <div className="text-sm text-primary font-medium flex items-center">
+                카드를 클릭하여 문서에서 위치 확인
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </div>
             </div>
 
             {/* 문제점 검토 카드 */}
             {hasIssues && (
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900">{t('issues.title')}</h3>
+                <h3 className="text-xl font-semibold text-foreground">{t('issues.title')}</h3>
                 {analysis.issues.map((issue) => {
                   const badge = getSeverityBadge(issue.severity);
                   return (
                     <div
                       key={issue.id}
                       onClick={() => handleCardClick('issues', issue.id)}
-                      className={`bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
+                      className={cn(
+                        "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
                         selectedCard === 'issues' && highlightAreas[0]?.id === issue.id
-                          ? 'border-red-500 shadow-lg'
-                          : 'border-gray-200 hover:border-red-300 hover:shadow-md'
-                      }`}
+                          ? "border-red-500 ring-1 ring-red-500"
+                          : "border-border hover:border-red-500/50"
+                      )}
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <div className="text-3xl">⚠️</div>
+                        <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
+                          <AlertTriangle className="w-6 h-6" />
+                        </div>
                         <span
-                          className={`px-3 py-1 text-xs font-medium rounded ${
-                            badge.color === 'red'
-                              ? 'bg-red-100 text-red-800'
-                              : badge.color === 'yellow'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}
+                          className={cn(
+                            "px-2.5 py-1 text-xs font-medium rounded-full border",
+                            badge.color === 'red' && "bg-red-500/10 text-red-500 border-red-500/20",
+                            badge.color === 'yellow' && "bg-amber-500/10 text-amber-500 border-amber-500/20",
+                            badge.color === 'green' && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                          )}
                         >
                           {badge.text}
                         </span>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2">{issue.title}</h4>
-                      <p className="text-gray-600 mb-2 text-sm">{issue.description}</p>
+                      <h4 className="text-lg font-semibold text-foreground mb-2">{issue.title}</h4>
+                      <p className="text-muted-foreground mb-2 text-sm">{issue.description}</p>
                       {issue.recommendation && (
-                        <p className="text-gray-500 text-sm italic">{issue.recommendation}</p>
+                        <p className="text-muted-foreground/80 text-sm italic border-l-2 border-border pl-3 mt-3">
+                          {issue.recommendation}
+                        </p>
                       )}
-                      <div className="mt-3 text-sm text-red-600 font-medium">카드를 클릭하여 문서에서 위치 확인</div>
                     </div>
                   );
                 })}
@@ -215,38 +222,46 @@ export default function AnalysisPage({
             {hasPolicyRelevance && (
               <div
                 onClick={() => handleCardClick('policy')}
-                className={`bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
-                  selectedCard === 'policy'
-                    ? 'border-purple-500 shadow-lg'
-                    : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
-                }`}
+                className={cn(
+                  "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
+                  selectedCard === 'policy' ? "border-purple-500 ring-1 ring-purple-500" : "border-border hover:border-purple-500/50"
+                )}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="text-3xl">🏛️</div>
+                  <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('policy.title')}</h3>
-                <p className="text-gray-600 mb-4">
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t('policy.title')}</h3>
+                <p className="text-muted-foreground mb-4">
                   {analysis.policyRelevance.policies.length}개의 관련 정책이 확인되었습니다.
                 </p>
-                <div className="text-sm text-purple-600 font-medium">카드를 클릭하여 문서에서 위치 확인</div>
+                <div className="text-sm text-purple-500 font-medium flex items-center">
+                  카드를 클릭하여 문서에서 위치 확인
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </div>
               </div>
             )}
 
             {/* 중요 날짜 카드 */}
             <div
               onClick={() => handleCardClick('dates')}
-              className={`bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
-                selectedCard === 'dates'
-                  ? 'border-green-500 shadow-lg'
-                  : 'border-gray-200 hover:border-green-300 hover:shadow-md'
-              }`}
+              className={cn(
+                "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
+                selectedCard === 'dates' ? "border-emerald-500 ring-1 ring-emerald-500" : "border-border hover:border-emerald-500/50"
+              )}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="text-3xl">📅</div>
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                  <Calendar className="w-6 h-6" />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('dates.title')}</h3>
-              <p className="text-gray-600 mb-4">만기일, 재계약일 등 중요 날짜를 확인하세요.</p>
-              <div className="text-sm text-green-600 font-medium">카드를 클릭하여 문서에서 위치 확인</div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{t('dates.title')}</h3>
+              <p className="text-muted-foreground mb-4">만기일, 재계약일 등 중요 날짜를 확인하세요.</p>
+              <div className="text-sm text-emerald-500 font-medium flex items-center">
+                카드를 클릭하여 문서에서 위치 확인
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </div>
             </div>
 
             {/* 전체 상세보기 버튼 */}
@@ -255,7 +270,7 @@ export default function AnalysisPage({
                 onClick={() => router.push(`/${locale}/analysis/${id}/detail`)}
                 variant="primary"
                 size="lg"
-                className="w-full"
+                className="w-full h-14 text-lg shadow-lg shadow-primary/20"
               >
                 전체 상세보기
               </Button>

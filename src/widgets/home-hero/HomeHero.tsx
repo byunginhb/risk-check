@@ -36,4 +36,3 @@ export function HomeHero({ children }: HomeHeroProps) {
 
   return <div ref={ref}>{children}</div>;
 }
-
