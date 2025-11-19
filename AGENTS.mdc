@@ -1,0 +1,1298 @@
+---
+alwaysApply: true
+---
+
+# Project Development Guide
+
+## 1. Code Style and Formatting
+
+### General Rules
+
+- **Indentation**: Use 2 spaces
+- **Semicolons**: Always use
+- **Quotes**: Use single quotes (') (double quotes in JSX)
+- **Line length**: Maximum 100 characters
+- Follow **Prettier** and **ESLint** configurations
+
+### File Structure (FSD Architecture)
+
+Use Feature-Sliced Design architecture for hierarchical organization.
+Structure varies depending on project type.
+
+#### A. Next.js App Router Project
+
+Since Next.js App Router uses file-system-based routing, the `app` directory handles routing only, while business logic is organized in FSD structure within `src`.
+
+```
+project-root/
+  ├── app/                    # Next.js routing (file-based)
+  │   ├── (auth)/            # Route group
+  │   │   ├── login/
+  │   │   │   └── page.tsx   # /login route
+  │   │   └── register/
+  │   │       └── page.tsx   # /register route
+  │   │
+  │   ├── (dashboard)/
+  │   │   ├── layout.tsx     # Dashboard layout
+  │   │   ├── page.tsx       # /dashboard route
+  │   │   └── settings/
+  │   │       └── page.tsx   # /dashboard/settings route
+  │   │
+  │   ├── api/               # API Routes
+  │   │   └── users/
+  │   │       └── route.ts
+  │   │
+  │   ├── layout.tsx         # Root layout
+  │   ├── page.tsx           # Homepage
+  │   └── providers.tsx      # Global providers
+  │
+  └── src/                   # FSD architecture (business logic)
+      ├── widgets/           # Widget layer (large blocks composing pages)
+      │   ├── header/
+      │   │   ├── ui/
+      │   │   │   ├── Header.tsx
+      │   │   │   └── Navigation.tsx
+      │   │   └── index.ts
+      │   ├── sidebar/
+      │   └── footer/
+      │
+      ├── features/          # Feature layer (user scenarios)
+      │   ├── auth/
+      │   │   ├── ui/
+      │   │   │   ├── LoginForm.tsx
+      │   │   │   └── RegisterForm.tsx
+      │   │   ├── model/
+      │   │   │   └── useAuth.ts
+      │   │   ├── api/
+      │   │   │   └── authApi.ts
+      │   │   └── index.ts
+      │   │
+      │   ├── user-profile/
+      │   │   ├── ui/
+      │   │   ├── model/
+      │   │   └── index.ts
+      │   │
+      │   └── search/
+      │       ├── ui/
+      │       ├── model/
+      │       └── index.ts
+      │
+      ├── entities/          # Entity layer (business entities)
+      │   ├── user/
+      │   │   ├── ui/
+      │   │   │   └── UserCard.tsx
+      │   │   ├── model/
+      │   │   │   └── types.ts
+      │   │   ├── api/
+      │   │   │   └── userApi.ts
+      │   │   └── index.ts
+      │   │
+      │   ├── product/
+      │   └── comment/
+      │
+      └── shared/            # Shared layer
+          ├── ui/            # Common UI components
+          │   ├── Button/
+          │   │   ├── Button.tsx
+          │   │   └── index.ts
+          │   ├── Input/
+          │   └── Modal/
+          │
+          ├── lib/           # Utility functions
+          │   ├── formatDate.ts
+          │   └── validation.ts
+          │
+          ├── api/           # API configuration
+          │   └── client.ts
+          │
+          ├── config/        # Configuration
+          │   └── constants.ts
+          │
+          └── types/         # Common types
+              └── common.ts
+```
+
+**Next.js App Router Usage Example:**
+
+```typescript
+// app/dashboard/page.tsx (handles routing only)
+import { DashboardWidget } from '@/src/widgets/dashboard';
+
+export default function DashboardPage() {
+  return <DashboardWidget />;
+}
+
+// src/widgets/dashboard/ui/DashboardWidget.tsx (business logic)
+import { UserProfileFeature } from '@/src/features/user-profile';
+import { StatsCard } from '@/src/entities/stats';
+
+export const DashboardWidget = () => {
+  return (
+    <div>
+      <UserProfileFeature />
+      <StatsCard />
+    </div>
+  );
+};
+```
+
+#### B. Pure React Project (CRA, Vite, etc.)
+
+In pure React projects, FSD is fully applied, with the pages layer handling routing.
+
+```
+src/
+  ├── app/                   # Application layer
+  │   ├── providers/         # Global providers
+  │   │   ├── RouterProvider.tsx
+  │   │   └── QueryProvider.tsx
+  │   ├── routes/            # Routing configuration
+  │   │   └── index.tsx
+  │   └── App.tsx
+  │
+  ├── pages/                 # Page layer
+  │   ├── home/
+  │   │   ├── ui/
+  │   │   │   └── HomePage.tsx
+  │   │   └── index.ts
+  │   ├── profile/
+  │   └── settings/
+  │
+  ├── widgets/               # Widget layer
+  │   ├── header/
+  │   ├── sidebar/
+  │   └── footer/
+  │
+  ├── features/              # Feature layer
+  │   ├── auth/
+  │   ├── user-profile/
+  │   └── search/
+  │
+  ├── entities/              # Entity layer
+  │   ├── user/
+  │   ├── product/
+  │   └── comment/
+  │
+  └── shared/                # Shared layer
+      ├── ui/
+      ├── lib/
+      ├── api/
+      ├── config/
+      └── types/
+```
+
+### FSD Layer Rules
+
+1. **Upper layers can only reference lower layers** (unidirectional dependency)
+
+   - **Next.js**: app (routing) → widgets → features → entities → shared
+   - **React**: app → pages → widgets → features → entities → shared
+   - Lower layers cannot import from upper layers
+
+2. **Direct references between different slices in the same layer are prohibited**
+
+   - Cannot directly import features/profile from features/auth
+   - If communication between same-layer slices is needed, compose in upper layer
+
+3. **Each slice is accessed only through public API**
+
+   - Export only through each slice's index.ts
+   - Do not expose internal implementation
+
+```typescript
+// ✅ Good: Export through index.ts
+// src/features/auth/index.ts
+export { LoginForm } from './ui/LoginForm';
+export { useAuth } from './model/useAuth';
+
+// Usage elsewhere
+import { LoginForm, useAuth } from '@/src/features/auth';
+
+// ❌ Bad: Direct import
+import { LoginForm } from '@/src/features/auth/ui/LoginForm';
+```
+
+4. **Next.js Special Rules**
+   - Keep `app` directory's page.tsx as thin as possible
+   - Separate server components and client components
+   - Move all business logic to FSD structure in `src`
+
+```typescript
+// ✅ Good: app handles routing only
+// app/users/[id]/page.tsx
+import { UserProfileWidget } from '@/src/widgets/user-profile';
+
+export default async function UserPage({ params }: { params: { id: string } }) {
+  return <UserProfileWidget userId={params.id} />;
+}
+
+// ❌ Bad: Business logic in app
+// app/users/[id]/page.tsx
+export default async function UserPage({ params }: { params: { id: string } }) {
+  const user = await fetchUser(params.id); // ❌ Business logic
+  return <div>{user.name}</div>; // ❌ UI logic
+}
+```
+
+### Component Separation Principles
+
+Components should be split as small as possible:
+
+1. **Single Responsibility**: One component performs one clear role
+2. **100-line limit**: Review separation if component exceeds 100 lines
+3. **Reusability**: Separate logic used 2+ times into its own component
+4. **Presentation/Container Pattern**: Consider separating UI and logic
+
+```typescript
+// ❌ Bad: One large component
+const UserProfile = () => {
+  // 200 lines of complex logic and UI
+};
+
+// ✅ Good: Split into small components
+const UserProfile = () => (
+  <div>
+    <UserHeader user={user} />
+    <UserStats stats={stats} />
+    <UserPosts posts={posts} />
+    <UserActions onEdit={handleEdit} />
+  </div>
+);
+```
+
+## 2. Component Writing Rules
+
+### Component Structure Order
+
+1. Import statements
+2. Type/interface definitions
+3. Component function
+4. Style definitions (when using styled-components)
+5. Export statement
+
+### Example
+
+```typescript
+// 1. Import
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/common';
+
+// 2. Type definition
+interface UserCardProps {
+  name: string;
+  email: string;
+  onEdit?: () => void;
+}
+
+// 3. Component
+export const UserCard: React.FC<UserCardProps> = ({ name, email, onEdit }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    // Effect logic
+  }, []);
+
+  return (
+    <div onMouseEnter={() => setIsHovered(true)}>
+      <h3>{name}</h3>
+      <p>{email}</p>
+      {onEdit && <Button onClick={onEdit}>Edit</Button>}
+    </div>
+  );
+};
+```
+
+### Component Writing Principles
+
+- **Functional components** (avoid class components)
+- **Single Responsibility Principle**: One component, one role
+- **Avoid Props Drilling**: Use Context API or state management library
+- **Conditional Rendering**: Use ternary operator or && operator
+- **List Rendering**: Always use unique key prop
+
+## 3. Naming Conventions
+
+### File Names
+
+- **Components**: PascalCase (e.g., `UserCard.tsx`)
+- **Hooks**: camelCase with 'use' prefix (e.g., `useAuth.ts`)
+- **Utilities**: camelCase (e.g., `formatDate.ts`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `API_ENDPOINTS.ts`)
+
+### Variable and Function Names
+
+- **Components**: PascalCase (e.g., `UserProfile`)
+- **Functions/Variables**: camelCase (e.g., `handleSubmit`, `userName`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_RETRY_COUNT`)
+- **Private Variables**: underscore prefix (e.g., `_internalState`)
+- **Boolean**: is/has/should prefix (e.g., `isLoading`, `hasError`)
+
+### Event Handlers
+
+- Use **handle** prefix (e.g., `handleClick`, `handleSubmit`)
+- Use **on** prefix when passing to components (e.g., `onClick`, `onSubmit`)
+
+## 4. TypeScript Usage Rules
+
+### Type Definitions
+
+- **No `any` usage**: Use `unknown` or specific types
+- **Interface vs Type**:
+  - Prefer interface for object shapes
+  - Use type for Union, Intersection
+- **Explicit type declarations**: Declare function return types
+
+### Example
+
+```typescript
+// ✅ Good
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+type UserRole = 'admin' | 'user' | 'guest';
+
+function getUser(id: number): Promise<User> {
+  // ...
+}
+
+// ❌ Bad
+function getUser(id: any) {
+  // ...
+}
+```
+
+### Props Types
+
+```typescript
+// ✅ Explicit Props definition
+interface ButtonProps {
+  label: string;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+  disabled?: boolean;
+}
+
+// When children are present
+interface CardProps {
+  title: string;
+  children: React.ReactNode;
+}
+```
+
+## 5. Hooks Usage Rules
+
+### Basic Principles
+
+- **Call only at top level**: Prohibited inside conditionals, loops
+- **Call only within React functions**: Only in components or custom hooks
+- **Custom hooks**: Names starting with 'use'
+
+### useState
+
+```typescript
+// ✅ Clear initial value
+const [count, setCount] = useState<number>(0);
+const [user, setUser] = useState<User | null>(null);
+
+// ✅ Functional update (based on previous state)
+setCount((prev) => prev + 1);
+```
+
+### useEffect
+
+```typescript
+// ✅ Accurately specify dependency array
+useEffect(() => {
+  fetchData();
+}, [userId]); // Execute only when userId changes
+
+// ✅ Use cleanup function
+useEffect(() => {
+  const subscription = subscribeToData();
+  return () => subscription.unsubscribe();
+}, []);
+```
+
+### Custom Hooks
+
+```typescript
+// ✅ Separate reusable logic
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [value, setValue] = useState<T>(() => {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : initialValue;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+```
+
+## 6. State Management
+
+### Local State vs Global State
+
+- **Local State**: Used in single component → useState
+- **Shared State**: Multiple components → Context API or Zustand/Recoil
+- **Server State**: Recommended to use React Query / TanStack Query
+
+### Context API Usage
+
+```typescript
+// context/AuthContext.tsx
+interface AuthContextType {
+  user: User | null;
+  login: (credentials: Credentials) => Promise<void>;
+  logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+```
+
+## 7. Performance Optimization
+
+### React Compiler Usage
+
+This project uses **React Compiler** for automatic optimization.
+
+```typescript
+// ✅ React Compiler automatically optimizes
+// No need for memo, useMemo, useCallback
+
+// Write components normally
+export const UserList = ({ users }: { users: User[] }) => {
+  return (
+    <div>
+      {users.map((user) => (
+        <UserCard key={user.id} user={user} />
+      ))}
+    </div>
+  );
+};
+
+// Normal value calculation
+const filteredUsers = users.filter((user) => user.isActive);
+const totalCount = calculateTotal(items);
+
+// Normal function definition
+const handleClick = () => {
+  doSomething();
+};
+```
+
+### Optimization Principles
+
+1. **Leave it to React Compiler**
+
+   - Do not use memo, useMemo, useCallback
+   - Compiler automatically optimizes necessary parts
+
+2. **When manual optimization is needed**
+   - Consider Web Worker for very complex calculations
+   - Use virtualization library for infinite scroll (react-window, @tanstack/react-virtual)
+
+```typescript
+// ❌ Bad: Unnecessary memoization
+const value = useMemo(() => a + b, [a, b]);
+const handleClick = useCallback(() => onClick(), [onClick]);
+
+// ✅ Good: Write naturally
+const value = a + b;
+const handleClick = () => onClick();
+```
+
+### Dynamic Import
+
+```typescript
+// Code splitting
+const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
+  loading: () => <Spinner />,
+  ssr: false,
+});
+```
+
+### Image Optimization
+
+```typescript
+// Use Next.js Image component
+import Image from 'next/image';
+
+<Image
+  src="/photo.jpg"
+  alt="Description"
+  width={500}
+  height={300}
+  priority // For LCP images
+/>;
+```
+
+## 8. Error Handling
+
+### try-catch Usage
+
+```typescript
+async function fetchUserData(userId: string) {
+  try {
+    const response = await fetch(`/api/users/${userId}`);
+    if (!response.ok) {
+      throw new Error('Unable to fetch user information');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error; // Or appropriate error handling
+  }
+}
+```
+
+### Error Boundary
+
+```typescript
+// components/ErrorBoundary.tsx
+class ErrorBoundary extends React.Component<Props, State> {
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+    return this.props.children;
+  }
+}
+```
+
+## 9. Accessibility (a11y)
+
+### Semantic HTML
+
+```typescript
+// ✅ Use semantic tags
+<button onClick={handleClick}>Click</button>
+<nav><a href="/home">Home</a></nav>
+
+// ❌ Non-semantic
+<div onClick={handleClick}>Click</div>
+```
+
+### ARIA Attributes
+
+```typescript
+<button aria-label="Close menu" aria-expanded={isOpen} onClick={toggleMenu}>
+  <MenuIcon />
+</button>
+```
+
+### Keyboard Navigation
+
+- All interactive elements must be accessible via keyboard
+- Tab order should be logical
+- Buttons activate with Enter/Space keys
+
+## 10. Design System (Tailwind CSS)
+
+### Basic Principles
+
+This project uses **Tailwind CSS** to implement modern and rich designs.
+
+1. **Modern Design**: Sophisticated UI reflecting latest design trends
+2. **Responsive Required**: All components perfectly adapt from mobile to desktop
+3. **Rich UI**: Visually rich and informative design rather than simple
+4. **Professional and Trustworthy**: Friendly yet not playful
+5. **Light Animations**: Natural transition effects that enhance user experience
+
+### Tailwind CSS Usage Rules
+
+#### Prefer Utility Classes
+
+```typescript
+// ✅ Good: Use Tailwind utility classes
+<div className="flex items-center justify-between p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+  <h2 className="text-2xl font-bold text-gray-900">Title</h2>
+  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+    Button
+  </button>
+</div>
+
+// ❌ Bad: Inline styles
+<div style={{ display: 'flex', padding: '24px' }}>
+  <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>Title</h2>
+</div>
+```
+
+#### Minimize Custom Classes
+
+```typescript
+// ✅ Good: Use Tailwind's @apply (only for common patterns)
+// globals.css
+.btn-primary {
+  @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors;
+}
+
+// ❌ Bad: All styles as custom classes
+.custom-button {
+  padding: 8px 16px;
+  background-color: #2563eb;
+  color: white;
+  /* ... */
+}
+```
+
+### Responsive Design
+
+All components are written mobile-first, actively utilizing responsive breakpoints.
+
+```typescript
+// ✅ Good: Mobile-first + responsive
+<div className="
+  grid
+  grid-cols-1
+  gap-4
+  p-4
+  sm:grid-cols-2
+  sm:gap-6
+  sm:p-6
+  md:grid-cols-3
+  lg:grid-cols-4
+  xl:gap-8
+">
+  {items.map((item) => (
+    <Card key={item.id} item={item} />
+  ))}
+</div>
+
+// ✅ Good: Responsive text size
+<h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+  Title
+</h1>
+
+// ✅ Good: Responsive padding/margin
+<section className="px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16">
+  {/* Content */}
+</section>
+```
+
+#### Responsive Breakpoint Guide
+
+- **sm**: 640px and above (tablet portrait)
+- **md**: 768px and above (tablet landscape)
+- **lg**: 1024px and above (laptop)
+- **xl**: 1280px and above (desktop)
+- **2xl**: 1536px and above (large monitor)
+
+### Color System
+
+Use consistent color palette to maintain professional feel.
+
+```typescript
+// ✅ Good: Use Tailwind color system
+<button className="bg-blue-600 hover:bg-blue-700 text-white">
+  Primary Button
+</button>
+
+<div className="bg-gray-50 border border-gray-200 rounded-lg">
+  Card
+</div>
+
+<span className="text-green-600 bg-green-50 px-2 py-1 rounded">
+  Success
+</span>
+
+// ❌ Bad: Hardcoded colors
+<button style={{ backgroundColor: '#3b82f6' }}>
+  Button
+</button>
+```
+
+#### Color Usage Guide
+
+- **Primary**: `blue-600`, `blue-700` (main actions)
+- **Secondary**: `gray-600`, `gray-700` (secondary actions)
+- **Success**: `green-600`, `green-50` (success messages)
+- **Warning**: `yellow-600`, `yellow-50` (warning messages)
+- **Error**: `red-600`, `red-50` (error messages)
+- **Background**: `white`, `gray-50`, `gray-100` (backgrounds)
+- **Text**: `gray-900`, `gray-800`, `gray-600` (text)
+
+### Typography
+
+Use clear and readable typography.
+
+```typescript
+// ✅ Good: Hierarchical typography
+<h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+  Main Title
+</h1>
+
+<h2 className="text-2xl font-semibold text-gray-800 mt-6 mb-4">
+  Section Title
+</h2>
+
+<p className="text-base text-gray-600 leading-relaxed">
+  Body text enhances readability with appropriate line spacing and color.
+</p>
+
+<small className="text-sm text-gray-500">
+  Supplementary Information
+</small>
+```
+
+#### Font Size Guide
+
+- **Titles**: `text-4xl` ~ `text-6xl` (font-bold)
+- **Section Titles**: `text-2xl` ~ `text-3xl` (font-semibold)
+- **Body**: `text-base` ~ `text-lg` (font-normal)
+- **Supplementary Text**: `text-sm` ~ `text-xs` (font-normal)
+
+### Spacing
+
+Use consistent spacing system to create visual rhythm.
+
+```typescript
+// ✅ Good: Tailwind spacing system
+<div className="space-y-4 p-6">
+  <div className="mb-4">Item 1</div>
+  <div className="mb-4">Item 2</div>
+</div>
+
+<section className="px-6 py-8 md:px-8 md:py-12">
+  {/* Content */}
+</section>
+
+// ✅ Good: Use Flexbox gap
+<div className="flex gap-4 items-center">
+  <Button />
+  <Button />
+</div>
+```
+
+### Shadows and Depth
+
+Use appropriate shadows on cards and modals to express hierarchy.
+
+```typescript
+// ✅ Good: Hierarchical shadows
+<div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+  {/* Basic card */}
+</div>
+
+<div className="bg-white rounded-lg shadow-md">
+  {/* Emphasized card */}
+</div>
+
+<div className="bg-white rounded-lg shadow-lg">
+  {/* Modal, dropdown */}
+</div>
+
+<div className="bg-white rounded-lg shadow-xl">
+  {/* Emphasized modal */}
+</div>
+```
+
+### Animations and Transitions
+
+Enhance user experience with light animations. Avoid excessive animations.
+
+```typescript
+// ✅ Good: Natural transitions
+<button className="
+  bg-blue-600
+  text-white
+  px-4 py-2
+  rounded-md
+  transition-all
+  duration-200
+  hover:bg-blue-700
+  hover:scale-105
+  active:scale-95
+">
+  Button
+</button>
+
+// ✅ Good: Fade-in animation
+<div className="
+  opacity-0
+  animate-fade-in
+  transition-opacity
+  duration-300
+">
+  Content
+</div>
+
+// ✅ Good: Hover effects
+<div className="
+  group
+  cursor-pointer
+  transition-all
+  duration-300
+  hover:scale-105
+  hover:shadow-lg
+">
+  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+    Overlay
+  </div>
+</div>
+
+// ❌ Bad: Excessive animations
+<div className="animate-bounce animate-spin animate-pulse">
+  {/* Too many animations */}
+</div>
+```
+
+#### Animation Guide
+
+- **Transition Duration**: `duration-150` ~ `duration-300` (fast and natural feel)
+- **Hover Effects**: `hover:scale-105`, `hover:shadow-lg` (subtle changes)
+- **Focus Effects**: `focus:ring-2 focus:ring-blue-500` (accessibility enhancement)
+- **Loading State**: `animate-pulse` (when loading data)
+
+### Card and Container Design
+
+Use rich card designs that convey information well.
+
+```typescript
+// ✅ Good: Rich card design
+<div
+  className="
+  bg-white
+  rounded-xl
+  shadow-md
+  p-6
+  border
+  border-gray-100
+  hover:shadow-lg
+  transition-all
+  duration-200
+"
+>
+  <div className="flex items-start justify-between mb-4">
+    <div className="flex-1">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Card Title</h3>
+      <p className="text-sm text-gray-600 leading-relaxed">
+        Card description text. Provides sufficient information while maintaining readability.
+      </p>
+    </div>
+    <div className="ml-4">
+      <Icon className="w-6 h-6 text-blue-600" />
+    </div>
+  </div>
+
+  <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+    <span className="text-xs text-gray-500">Additional Info</span>
+    <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">Learn More →</button>
+  </div>
+</div>
+```
+
+### Button Design
+
+Use clear and clickable button designs.
+
+```typescript
+// ✅ Good: Primary button
+<button className="
+  px-6 py-3
+  bg-blue-600
+  text-white
+  font-medium
+  rounded-lg
+  shadow-sm
+  hover:bg-blue-700
+  hover:shadow-md
+  active:scale-95
+  transition-all
+  duration-200
+  disabled:opacity-50
+  disabled:cursor-not-allowed
+">
+  Primary Button
+</button>
+
+// ✅ Good: Secondary button
+<button className="
+  px-6 py-3
+  bg-white
+  text-gray-700
+  font-medium
+  rounded-lg
+  border
+  border-gray-300
+  shadow-sm
+  hover:bg-gray-50
+  hover:border-gray-400
+  transition-all
+  duration-200
+">
+  Secondary Button
+</button>
+
+// ✅ Good: Ghost button
+<button className="
+  px-4 py-2
+  text-blue-600
+  font-medium
+  rounded-md
+  hover:bg-blue-50
+  transition-colors
+  duration-200
+">
+  Ghost Button
+</button>
+```
+
+### Form Element Design
+
+Design user-friendly form elements.
+
+```typescript
+// ✅ Good: Input field
+<div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Email
+  </label>
+  <input
+    type="email"
+    className="
+      w-full
+      px-4 py-3
+      border
+      border-gray-300
+      rounded-lg
+      focus:ring-2
+      focus:ring-blue-500
+      focus:border-blue-500
+      transition-all
+      duration-200
+      placeholder:text-gray-400
+    "
+    placeholder="example@email.com"
+  />
+  <p className="mt-1 text-sm text-gray-500">
+    Help text
+  </p>
+</div>
+
+// ✅ Good: Select field
+<select className="
+  w-full
+  px-4 py-3
+  border
+  border-gray-300
+  rounded-lg
+  bg-white
+  focus:ring-2
+  focus:ring-blue-500
+  focus:border-blue-500
+  transition-all
+  duration-200
+">
+  <option>Option 1</option>
+  <option>Option 2</option>
+</select>
+```
+
+### Grid Layout
+
+Use responsive grids to systematically arrange content.
+
+```typescript
+// ✅ Good: Responsive grid
+<div className="
+  grid
+  grid-cols-1
+  gap-6
+  sm:grid-cols-2
+  md:grid-cols-3
+  lg:grid-cols-4
+">
+  {items.map((item) => (
+    <Card key={item.id} item={item} />
+  ))}
+</div>
+
+// ✅ Good: Flexbox layout
+<div className="
+  flex
+  flex-col
+  gap-4
+  md:flex-row
+  md:items-center
+  md:justify-between
+">
+  <div>Content 1</div>
+  <div>Content 2</div>
+</div>
+```
+
+### Icons and Images
+
+Appropriately utilize icons and images to add visual richness.
+
+```typescript
+// ✅ Good: Icon usage
+<div className="flex items-center gap-2">
+  <Icon className="w-5 h-5 text-blue-600" />
+  <span className="text-gray-700">Text</span>
+</div>
+
+// ✅ Good: Responsive image
+<img
+  src="/image.jpg"
+  alt="Description"
+  className="
+    w-full
+    h-auto
+    rounded-lg
+    object-cover
+    shadow-md
+  "
+/>
+
+// ✅ Good: Next.js Image component
+<Image
+  src="/image.jpg"
+  alt="Description"
+  width={800}
+  height={600}
+  className="rounded-lg shadow-md"
+/>
+```
+
+### Dark Mode Considerations
+
+Consider dark mode support when selecting colors.
+
+```typescript
+// ✅ Good: Dark mode support
+<div
+  className="
+  bg-white
+  dark:bg-gray-800
+  text-gray-900
+  dark:text-gray-100
+  border
+  border-gray-200
+  dark:border-gray-700
+"
+>
+  Content
+</div>
+```
+
+### Design Checklist
+
+When writing components, check the following:
+
+- [ ] Does it work responsively from mobile to desktop?
+- [ ] Is readability good with appropriate color contrast?
+- [ ] Are hover/focus states clearly displayed?
+- [ ] Are animations natural and not excessive?
+- [ ] Is there sufficient spacing and gaps?
+- [ ] Are shadows and depth appropriate?
+- [ ] Is text size hierarchically well-structured?
+- [ ] Are buttons and interactive elements large enough and easy to click?
+
+## 11. Testing
+
+### Testing Principles
+
+- **Unit Tests**: Utility functions, hooks
+- **Component Tests**: React Testing Library
+- **E2E Tests**: Playwright or Cypress
+
+### Example
+
+```typescript
+// UserCard.test.tsx
+import { render, screen } from '@testing-library/react';
+import { UserCard } from './UserCard';
+
+describe('UserCard', () => {
+  it('displays user name and email', () => {
+    render(<UserCard name="John Doe" email="john@example.com" />);
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  });
+});
+```
+
+## 12. Git Commit Rules
+
+### Commit Message Format
+
+```
+<type>: <title>
+
+<body> (optional)
+```
+
+### Commit Types
+
+- **feat**: Add new feature
+- **edit**: Modify feature
+- **fixed**: Fix bug
+- **docs**: Modify documentation
+- **style**: Code formatting, add semicolons, etc.
+- **refactor**: Code refactoring
+- **chore**: Build tasks, package manager configuration, etc.
+
+### Examples
+
+```
+feat: Add user profile page
+fixed: Fix error on login button click
+refactor: Improve API call logic
+```
+
+## 13. API Communication
+
+### Fetch Wrapper Function
+
+```typescript
+// utils/api.ts
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+interface ApiOptions extends RequestInit {
+  token?: string;
+}
+
+export async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
+  const { token, ...fetchOptions } = options;
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...fetchOptions.headers,
+  };
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...fetchOptions,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status}`);
+  }
+
+  return response.json();
+}
+```
+
+### React Query Usage
+
+```typescript
+// hooks/useUsers.ts
+import { useQuery } from '@tanstack/react-query';
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: () => apiRequest<User[]>('/users'),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+```
+
+## 14. Environment Variables
+
+### Configuration
+
+```typescript
+// .env.local
+NEXT_PUBLIC_API_URL=https://api.example.com
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+DATABASE_URL=postgresql://...  # Server only
+```
+
+### Usage
+
+```typescript
+// Accessible from client (NEXT_PUBLIC_ prefix)
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+// Server only access
+const dbUrl = process.env.DATABASE_URL;
+```
+
+## 15. Comment Rules
+
+### JSDoc Usage
+
+```typescript
+/**
+ * Fetches user information.
+ * @param userId - User ID
+ * @returns Promise containing user object
+ * @throws Error when API request fails
+ */
+async function getUser(userId: string): Promise<User> {
+  // ...
+}
+```
+
+### Comment Principles
+
+- **Explain Why**: Explain reasons not clear from code itself
+- **Why, not What**: Don't repeat what can be understood from reading code
+- **TODO Comments**: Mark temporary code or areas needing improvement
+
+```typescript
+// ✅ Good: Explain reason
+// Apply debounce due to performance issue (500ms)
+const debouncedSearch = debounce(handleSearch, 500);
+
+// ❌ Bad: Repeat code
+// Increment count by 1
+setCount(count + 1);
+```
+
+## 16. Security
+
+### XSS Prevention
+
+```typescript
+// ✅ React prevents XSS by default
+<div>{userInput}</div>
+
+// ⚠️ Caution when using dangerouslySetInnerHTML
+<div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+```
+
+### Environment Variable Security
+
+- Manage API keys, passwords, etc. only as server environment variables
+- Do not use NEXT*PUBLIC* prefix for information that should not be exposed to client
+
+### HTTPS Usage
+
+- Always use HTTPS in production environment
+- Use `secure: true` option when setting cookies
+
+---
+
+## References
+
+- [React Official Documentation](https://react.dev)
+- [Next.js Official Documentation](https://nextjs.org/docs)
+- [TypeScript Official Documentation](https://www.typescriptlang.org/docs)
+- [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)

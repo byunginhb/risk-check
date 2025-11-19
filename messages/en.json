@@ -1,0 +1,85 @@
+{
+  "common": {
+    "title": "Risk Check",
+    "upload": "Upload",
+    "analyze": "Analyze",
+    "viewDetails": "View Details",
+    "back": "Back",
+    "home": "Home",
+    "language": "Language"
+  },
+  "home": {
+    "title": "Risk Check",
+    "subtitle": "Real Estate Contract Risk Analysis & Management Platform",
+    "description": "AI-powered contract analysis identifies risks in advance, tracks important dates and policy changes to support safe contract management.",
+    "tagline": "Smart Real Estate Contract Risk Management",
+    "stats": {
+      "analyzed": "Contracts Analyzed",
+      "issues": "Risks Detected",
+      "saved": "Losses Prevented"
+    },
+    "features": {
+      "title": "Core Features",
+      "subtitle": "Professional contract risk management tools supporting safe real estate transactions",
+      "contractAnalysis": {
+        "title": "AI Contract Analysis",
+        "description": "Advanced AI technology automatically analyzes all contract terms and extracts key information."
+      },
+      "issueDetection": {
+        "title": "Risk Detection",
+        "description": "Detect potential risk factors in contracts in advance to prevent losses."
+      },
+      "policyCheck": {
+        "title": "Policy Change Tracking",
+        "description": "Analyze the relevance of contracts to real estate policies that change in real-time."
+      },
+      "dateTracking": {
+        "title": "Important Schedule Management",
+        "description": "Automatically track all important contract-related dates including expiration, renewal, and notice deadlines."
+      }
+    },
+    "getStarted": "Start Contract Analysis",
+    "trustedBy": "Trusted Risk Management Solution",
+    "trustDescription": "Trusted risk management platform by real estate professionals and investors"
+  },
+  "upload": {
+    "title": "Upload Contract",
+    "subtitle": "Please upload the real estate contract to analyze",
+    "dragDrop": "Drag and drop files here or",
+    "selectFile": "Select File",
+    "supportedFormats": "Supported formats: PDF, Image files",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Upload successful",
+    "uploadError": "Upload failed",
+    "fileTooLarge": "File is too large",
+    "invalidFormat": "Unsupported file format"
+  },
+  "analysis": {
+    "title": "Analysis Results",
+    "summary": {
+      "title": "Contract Summary",
+      "description": "Summary of the main contents of the contract."
+    },
+    "issues": {
+      "title": "Issue Review",
+      "description": "Points of attention found in the contract."
+    },
+    "policy": {
+      "title": "Policy Relevance",
+      "description": "Analysis of relevance to current real estate policies."
+    },
+    "dates": {
+      "title": "Important Dates",
+      "description": "Important dates specified in the contract.",
+      "expiry": "Expiration Date",
+      "renewal": "Renewal Date",
+      "moving": "Moving Preparation Date"
+    },
+    "noResults": "No analysis results available"
+  },
+  "detail": {
+    "title": "Detailed Analysis Results",
+    "allResults": "All Analysis Results"
+  }
+}
+
