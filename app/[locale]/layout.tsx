@@ -70,8 +70,6 @@ export default async function LocaleLayout({
               <Header />
               <main className="flex-1 relative z-10">{children}</main>
               <AIBackground />
-              {/* Background Pattern Overlay */}
-              <div className="fixed inset-0 -z-20 h-full w-full bg-background/90 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
             </div>
           </NextIntlClientProvider>
         </ThemeProvider>

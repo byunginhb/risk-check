@@ -3,7 +3,8 @@ import { ContractAnalysis, UploadResponse } from '../../types/contract';
 // 목업 데이터 (한국어)
 const mockAnalysisDataKo: ContractAnalysis = {
   id: 'analysis-001',
-  summary: '이 계약서는 서울시 강남구에 위치한 오피스텔 전세 계약서입니다. 계약 기간은 2년이며, 보증금은 3억원입니다. 계약서에는 기본적인 조항들이 포함되어 있으며, 일부 주의가 필요한 사항들이 발견되었습니다.',
+  summary:
+    '이 계약서는 서울시 강남구에 위치한 오피스텔 전세 계약서입니다. 계약 기간은 2년이며, 보증금은 3억원입니다. 계약서에는 기본적인 조항들이 포함되어 있으며, 일부 주의가 필요한 사항들이 발견되었습니다.',
   issues: [
     {
       id: 'issue-001',
@@ -32,13 +33,16 @@ const mockAnalysisDataKo: ContractAnalysis = {
     policies: [
       {
         title: '전세사기 피해 예방 정책',
-        description: '정부는 전세사기 피해를 예방하기 위해 전세보증금 반환보증제를 강화하고 있습니다.',
-        impact: '본 계약서는 전세보증금 반환보증제 적용 대상이 될 수 있습니다. 보증금 반환 조건을 명확히 하는 것이 중요합니다.',
+        description:
+          '정부는 전세사기 피해를 예방하기 위해 전세보증금 반환보증제를 강화하고 있습니다.',
+        impact:
+          '본 계약서는 전세보증금 반환보증제 적용 대상이 될 수 있습니다. 보증금 반환 조건을 명확히 하는 것이 중요합니다.',
       },
       {
         title: '임대차 3법 개정안',
         description: '임대차 보호법 개정으로 전세 계약 시 임대인의 권리가 강화되었습니다.',
-        impact: '계약 기간 중 임대인의 계약 해지 권한이 제한될 수 있으므로, 계약서에 명시된 해지 사유를 확인하세요.',
+        impact:
+          '계약 기간 중 임대인의 계약 해지 권한이 제한될 수 있으므로, 계약서에 명시된 해지 사유를 확인하세요.',
       },
     ],
   },
@@ -59,21 +63,25 @@ const mockAnalysisDataKo: ContractAnalysis = {
 // 목업 데이터 (영어)
 const mockAnalysisDataEn: ContractAnalysis = {
   id: 'analysis-001',
-  summary: 'This is a Jeonse contract for an officetel located in Gangnam-gu, Seoul. The contract period is 2 years, and the deposit is 300 million KRW. The contract includes standard clauses, but some items requiring attention have been identified.',
+  summary:
+    'This is a Jeonse contract for an officetel located in Gangnam-gu, Seoul. The contract period is 2 years, and the deposit is 300 million KRW. The contract includes standard clauses, but some items requiring attention have been identified.',
   issues: [
     {
       id: 'issue-001',
       severity: 'high',
       title: 'Deposit Return Conditions Not Specified',
-      description: 'The conditions for returning the deposit upon contract termination are not specifically stated.',
-      recommendation: 'It is recommended to clearly specify the conditions and procedures for deposit return.',
+      description:
+        'The conditions for returning the deposit upon contract termination are not specifically stated.',
+      recommendation:
+        'It is recommended to clearly specify the conditions and procedures for deposit return.',
     },
     {
       id: 'issue-002',
       severity: 'medium',
       title: 'Unclear Repair Cost Responsibility',
       description: 'The party responsible for repair costs during the lease period is unclear.',
-      recommendation: 'Clarify the distinction between routine maintenance and structural repairs and who bears the costs.',
+      recommendation:
+        'Clarify the distinction between routine maintenance and structural repairs and who bears the costs.',
     },
     {
       id: 'issue-003',
@@ -88,13 +96,17 @@ const mockAnalysisDataEn: ContractAnalysis = {
     policies: [
       {
         title: 'Jeonse Fraud Prevention Policy',
-        description: 'The government is strengthening the Jeonse deposit return guarantee system to prevent fraud.',
-        impact: 'This contract may be eligible for the Jeonse deposit return guarantee. It is important to clarify deposit return conditions.',
+        description:
+          'The government is strengthening the Jeonse deposit return guarantee system to prevent fraud.',
+        impact:
+          'This contract may be eligible for the Jeonse deposit return guarantee. It is important to clarify deposit return conditions.',
       },
       {
         title: 'Housing Lease Protection Act Amendments',
-        description: 'Amendments to the Housing Lease Protection Act have strengthened tenants\' rights in Jeonse contracts.',
-        impact: 'The landlord\'s right to terminate the contract during the term may be limited, so check the termination grounds specified in the contract.',
+        description:
+          "Amendments to the Housing Lease Protection Act have strengthened tenants' rights in Jeonse contracts.",
+        impact:
+          "The landlord's right to terminate the contract during the term may be limited, so check the termination grounds specified in the contract.",
       },
     ],
   },
@@ -117,7 +129,7 @@ export async function uploadContract(file: File): Promise<UploadResponse> {
   // 목업: 파일 업로드 시뮬레이션
   // file 파라미터는 실제 업로드 로직 구현 시 사용됩니다.
   console.log('Uploading file:', file.name);
-  
+
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -128,7 +140,10 @@ export async function uploadContract(file: File): Promise<UploadResponse> {
   });
 }
 
-export async function getAnalysis(analysisId: string, locale: string = 'ko'): Promise<ContractAnalysis | null> {
+export async function getAnalysis(
+  analysisId: string,
+  locale: string = 'ko'
+): Promise<ContractAnalysis | null> {
   // 목업: 분석 결과 조회 시뮬레이션
   return new Promise((resolve) => {
     setTimeout(() => {

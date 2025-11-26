@@ -20,6 +20,17 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Customizing Images
+
+To replace the placeholder images with professional, photorealistic stock photos:
+
+📖 **See [IMAGE_GUIDE.md](./IMAGE_GUIDE.md)** for detailed instructions on:
+- Where to find professional real estate images (Unsplash, Pexels)
+- Recommended search terms
+- Image sizing and optimization
+- Step-by-step replacement guide
+
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

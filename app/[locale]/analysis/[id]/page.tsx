@@ -65,10 +65,10 @@ export default function AnalysisPage({
 
   const handleCardClick = (cardType: string, issueId?: string) => {
     setSelectedCard(cardType);
-    
+
     // 하이라이트 영역 설정 (목업 데이터 - 실제로는 API에서 받아올 것)
     const areas: HighlightArea[] = [];
-    
+
     switch (cardType) {
       case 'summary':
         areas.push({ x: 5, y: 5, width: 90, height: 30, type: 'summary' });
@@ -89,7 +89,7 @@ export default function AnalysisPage({
         areas.push({ x: 5, y: 25, width: 90, height: 10, type: 'date' });
         break;
     }
-    
+
     setHighlightAreas(areas);
   };
 
@@ -101,7 +101,9 @@ export default function AnalysisPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 animate-fade-in-up">
           <h1 className="text-3xl font-bold text-foreground mb-2">{t('title')}</h1>
-          <p className="text-muted-foreground">{t('analysisId')}: {id}</p>
+          <p className="text-muted-foreground">
+            {t('analysisId')}: {id}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -122,11 +124,11 @@ export default function AnalysisPage({
                   <div
                     key={index}
                     className={cn(
-                      "absolute border-2 rounded transition-all duration-300",
-                      area.type === 'issue' && "border-red-500 bg-red-500/20",
-                      area.type === 'policy' && "border-purple-500 bg-purple-500/20",
-                      area.type === 'date' && "border-emerald-500 bg-emerald-500/20",
-                      area.type === 'summary' && "border-blue-500 bg-blue-500/20"
+                      'absolute border-2 rounded transition-all duration-300',
+                      area.type === 'issue' && 'border-red-500 bg-red-500/20',
+                      area.type === 'policy' && 'border-purple-500 bg-purple-500/20',
+                      area.type === 'date' && 'border-emerald-500 bg-emerald-500/20',
+                      area.type === 'summary' && 'border-blue-500 bg-blue-500/20'
                     )}
                     style={{
                       left: `${area.x}%`,
@@ -156,8 +158,10 @@ export default function AnalysisPage({
             <div
               onClick={() => handleCardClick('summary')}
               className={cn(
-                "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
-                selectedCard === 'summary' ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/50"
+                'glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80',
+                selectedCard === 'summary'
+                  ? 'border-primary ring-1 ring-primary'
+                  : 'border-border hover:border-primary/50'
               )}
             >
               <div className="flex items-start justify-between mb-4">
@@ -184,10 +188,10 @@ export default function AnalysisPage({
                       key={issue.id}
                       onClick={() => handleCardClick('issues', issue.id)}
                       className={cn(
-                        "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
+                        'glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80',
                         selectedCard === 'issues' && highlightAreas[0]?.id === issue.id
-                          ? "border-red-500 ring-1 ring-red-500"
-                          : "border-border hover:border-red-500/50"
+                          ? 'border-red-500 ring-1 ring-red-500'
+                          : 'border-border hover:border-red-500/50'
                       )}
                     >
                       <div className="flex items-start justify-between mb-4">
@@ -196,10 +200,12 @@ export default function AnalysisPage({
                         </div>
                         <span
                           className={cn(
-                            "px-2.5 py-1 text-xs font-medium rounded-full border",
-                            badge.color === 'red' && "bg-red-500/10 text-red-500 border-red-500/20",
-                            badge.color === 'yellow' && "bg-amber-500/10 text-amber-500 border-amber-500/20",
-                            badge.color === 'green' && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                            'px-2.5 py-1 text-xs font-medium rounded-full border',
+                            badge.color === 'red' && 'bg-red-500/10 text-red-500 border-red-500/20',
+                            badge.color === 'yellow' &&
+                              'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                            badge.color === 'green' &&
+                              'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                           )}
                         >
                           {badge.text}
@@ -223,8 +229,10 @@ export default function AnalysisPage({
               <div
                 onClick={() => handleCardClick('policy')}
                 className={cn(
-                  "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
-                  selectedCard === 'policy' ? "border-purple-500 ring-1 ring-purple-500" : "border-border hover:border-purple-500/50"
+                  'glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80',
+                  selectedCard === 'policy'
+                    ? 'border-purple-500 ring-1 ring-purple-500'
+                    : 'border-border hover:border-purple-500/50'
                 )}
               >
                 <div className="flex items-start justify-between mb-4">
@@ -247,8 +255,10 @@ export default function AnalysisPage({
             <div
               onClick={() => handleCardClick('dates')}
               className={cn(
-                "glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80",
-                selectedCard === 'dates' ? "border-emerald-500 ring-1 ring-emerald-500" : "border-border hover:border-emerald-500/50"
+                'glass-card rounded-xl p-6 cursor-pointer transition-all duration-300 hover:bg-card/80',
+                selectedCard === 'dates'
+                  ? 'border-emerald-500 ring-1 ring-emerald-500'
+                  : 'border-border hover:border-emerald-500/50'
               )}
             >
               <div className="flex items-start justify-between mb-4">
